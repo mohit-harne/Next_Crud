@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 // Get API base URL from environment variables (use in production)
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://next-crud-three.vercel.app/';
+const apiBaseUrl = 'http://localhost:3000'  || process.env.NEXT_PUBLIC_API_BASE_URL ;
 
 // Thunks for asynchronous actions
 
