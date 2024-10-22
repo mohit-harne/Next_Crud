@@ -57,12 +57,13 @@ export const updateUser = createAsyncThunk(
 // Delete user
 export const deleteUser = createAsyncThunk(
   'users/deleteUser',
-  async (userId, { rejectWithValue, dispatch }) => {
+  async (_id, { rejectWithValue, dispatch }) => {
     if (window.confirm("Do you want to remove?")) {
       try {
-        await axios.delete(`${apiBaseUrl}/api/users/${userId}`);
+        await axios.delete(`${apiBaseUrl}/api/users?id=${_id}`);
+
         dispatch(fetchUserList()); // Refetch user list after deletion
-        return userId; // Return the deleted user ID
+        return _id; // Return the deleted user ID
       } catch (error) {
         return rejectWithValue(error.message);
       }

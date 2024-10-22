@@ -91,6 +91,16 @@
 .main{
   margin-top: 50px;
   padding: 50px;
-  padding-left: 100px;
-  padding-right: 100px;
+  
+  
+}
+
+@media (max-width: 578px) {
+  .main{
+    scale: 70%;
+      margin-top: -100px !important;
+      padding: 0%;
+      
+    
+  }
 }
