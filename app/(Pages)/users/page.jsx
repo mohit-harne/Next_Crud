@@ -186,10 +186,10 @@ const UsersPage = () => {
       </h3>
       <div className="flex justify-center gap-4">
         <Button className='text-red-600' color="red" onClick={handleDelete}>
-          Yes, I'm sure
+          Yes I am sure
         </Button>
         <Button className='text-black' color="gray" onClick={() => setOpenModal(false)}>
-          No, cancel
+          No cancel
         </Button>
       </div>
     </div>
