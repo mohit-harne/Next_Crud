@@ -132,73 +132,77 @@ const UsersPage = () => {
     };
 
     return (
-        <div className="container-fluid py-4 lg:pt-5 main ">
-            <div className="shadow-md rounded-lg border border-gray-300">
-                <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
-                    <Link href="/user/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
-                        Add New User [+]
-                    </Link>
-                </div>
-                <div className="p-4">
-                    {loading ? (
-                        <div className="text-center py-4">Loading...</div>
-                    ) : error ? (
-                        <div className="text-center py-4 text-red-500">Error: {error}</div>
-                    ) : (
-                        <Table aria-label="Example table with custom cells" className="overflow-x-auto">
-                            <TableHeader>
-                                {columns.map((column) => (
-                                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"} className='text-left tracking-widest text-xl' >
-                                        {column.name}
-                                    </TableColumn>
-                                ))}
-                            </TableHeader>
-                            <TableBody>
-                                {users.map((user) => (
-                                    <TableRow key={user._id}>
-                                        {columns.map((column) => (
-                                            <TableCell key={column.uid}>
-                                                {renderCell(user, column.uid)}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </div>
-            </div>
-
-           {/* Delete Confirmation Modal */}
-<Modal
-  className="bg-gray-300 bg-opacity-0 backdrop-blur-md pt-[200px] transition-all ease-out duration-300 transform animate-popup"
-  show={openModal}
-  size="2xl"
-  onClose={() => setOpenModal(false)}
-  popup
->
-  <Modal.Header />
-  <Modal.Body>
-    <div className="text-center bg-gray-100 py-3">
-      <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400" />
-      <h3 className="mb-5 text-lg font-normal text-gray-500">
-        Are you sure you want to delete user <span className="text-green-600">{selectedUserName}</span>?
-      </h3>
-      <div className="flex justify-center gap-4">
-        <Button className='text-red-600' color="red" onClick={handleDelete}>
-          Yes I am sure
-        </Button>
-        <Button className='text-black' color="gray" onClick={() => setOpenModal(false)}>
-          No cancel
-        </Button>
-      </div>
+        <div className="py-4 pt-5 main">
+  <div className="shadow-md rounded-lg border border-gray-300">
+    <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
+      <Link href="/user/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
+        Add New User [+]
+      </Link>
     </div>
-  </Modal.Body>
-</Modal>
-
-
-            <ToastContainer />
+    
+    {/* Add min-height to the table container */}
+    <div className="p-4" style={{ minHeight: '400px' }}>
+      {loading ? (
+        <div className="text-center py-4">Loading...</div>
+      ) : error ? (
+        <div className="text-center py-4 text-red-500">Error: {error}</div>
+      ) : (
+        <Table aria-label="Example table with custom cells" className="overflow-x-auto">
+          <TableHeader>
+            {columns.map((column) => (
+              <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"} className='text-left tracking-widest text-xl'>
+                {column.name}
+              </TableColumn>
+            ))}
+          </TableHeader>
+          
+          {/* Apply overflow to the table body */}
+          <TableBody className="overflow-y-auto" style={{ maxHeight: '300px' }}>
+            {users.map((user) => (
+              <TableRow key={user._id}>
+                {columns.map((column) => (
+                  <TableCell key={column.uid}>
+                    {renderCell(user, column.uid)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  </div>
+  
+  {/* Delete Confirmation Modal */}
+  <Modal
+    className="bg-gray-300 bg-opacity-0 backdrop-blur-md pt-[200px] transition-all ease-out duration-300 transform animate-popup"
+    show={openModal}
+    size="2xl"
+    onClose={() => setOpenModal(false)}
+    popup
+  >
+    <Modal.Header />
+    <Modal.Body>
+      <div className="text-center bg-gray-100 py-3">
+        <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400" />
+        <h3 className="mb-5 text-lg font-normal text-gray-500">
+          Are you sure you want to delete user <span className="text-green-600">{selectedUserName}</span>?
+        </h3>
+        <div className="flex justify-center gap-4">
+          <Button className='text-red-600' color="red" onClick={handleDelete}>
+            Yes I am sure
+          </Button>
+          <Button className='text-black' color="gray" onClick={() => setOpenModal(false)}>
+            No cancel
+          </Button>
         </div>
+      </div>
+    </Modal.Body>
+  </Modal>
+
+  <ToastContainer />
+</div>
+
     );
 };
 
