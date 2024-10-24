@@ -61,8 +61,8 @@ const UsersPage = () => {
                 );
             case "status":
                 return (
-                    <Chip className="capitalize p-3" color={statusColorMap[user.status]} size="sm" variant="flat">
-                        Active
+                    <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
+                        {user.status}
                     </Chip>
                 );
             case "actions":
@@ -132,7 +132,7 @@ const UsersPage = () => {
     };
 
     return (
-        <div className="container-fluid py-4 lg:pt-5 main ">
+        <div className="container-fluid py-4 lg:pt-5 main">
             <div className="shadow-md rounded-lg border border-gray-300">
                 <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
                     <Link href="/user/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
@@ -148,7 +148,7 @@ const UsersPage = () => {
                         <Table aria-label="Example table with custom cells" className="overflow-x-auto">
                             <TableHeader>
                                 {columns.map((column) => (
-                                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"} className='text-left tracking-widest text-xl' >
+                                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
                                         {column.name}
                                     </TableColumn>
                                 ))}
@@ -169,33 +169,26 @@ const UsersPage = () => {
                 </div>
             </div>
 
-           {/* Delete Confirmation Modal */}
-<Modal
-  className="bg-gray-300 bg-opacity-0 backdrop-blur-md pt-[200px] transition-all ease-out duration-300 transform animate-popup"
-  show={openModal}
-  size="2xl"
-  onClose={() => setOpenModal(false)}
-  popup
->
-  <Modal.Header />
-  <Modal.Body>
-    <div className="text-center bg-gray-100 py-3">
-      <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400" />
-      <h3 className="mb-5 text-lg font-normal text-gray-500">
-        Are you sure you want to delete user <span className="text-green-600">{selectedUserName}</span>?
-      </h3>
-      <div className="flex justify-center gap-4">
-        <Button className='text-red-600' color="red" onClick={handleDelete}>
-          Yes, I'm sure
-        </Button>
-        <Button className='text-black' color="gray" onClick={() => setOpenModal(false)}>
-          No, cancel
-        </Button>
-      </div>
-    </div>
-  </Modal.Body>
-</Modal>
-
+            {/* Delete Confirmation Modal */}
+            <Modal show={openModal} size="2xl" onClose={() => setOpenModal(false)} popup>
+                <Modal.Header />
+                <Modal.Body>
+                    <div className="text-center">
+                        <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400" />
+                        <h3 className="mb-5 text-lg font-normal text-gray-500">
+                            Are you sure you want to delete user <span className="text-green-600">{selectedUserName}</span>?
+                        </h3>
+                        <div className="flex justify-center gap-4">
+                            <Button color="red" onClick={handleDelete}>
+                                Yes, I'm sure
+                            </Button>
+                            <Button color="gray" onClick={() => setOpenModal(false)}>
+                                No, cancel
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
 
             <ToastContainer />
         </div>

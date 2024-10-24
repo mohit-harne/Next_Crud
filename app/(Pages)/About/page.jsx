@@ -2,7 +2,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className="mt-[150px]">About page</div>
+    <div className="mt-[150px]">About Page</div>
   )
 }
 

@@ -4,6 +4,7 @@
 
 
 
+
 @media  {
   :root {
     --background: #0a0a0a;
@@ -98,7 +99,7 @@
 @media (max-width: 578px) {
   .main{
     scale: 60%;
-      margin-top: -530px !important;
+      margin-top: -200px !important;
       padding: 0%;
       width: 630px;
       margin-left: -110px;
