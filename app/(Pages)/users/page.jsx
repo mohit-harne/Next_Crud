@@ -116,10 +116,10 @@ const UsersPage = () => {
 
             {/* Modal for delete confirmation */}
             <div className='h-screen w-screen flex items-center justify-center'>
-                <Modal className='w-full bg-white rounded shadow-md' show={openModal} size="2xl" onClose={() => setOpenModal(false)} popup>
+                <Modal className='w-full  rounded shadow-md' show={openModal} size="2xl" onClose={() => setOpenModal(false)} popup>
                     <Modal.Header />
                     <Modal.Body className='flex flex-col items-center justify-center'>
-                        <div className="text-center">
+                        <div className="text-center bg-white">
                             <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-red-400">
                                 Are you sure you want to delete the user <span className='text-green-600 underline '>{selectedUserName}</span> ?
