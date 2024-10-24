@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 // Get API base URL from environment variables (use in production)
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
 
-
 // Thunks for asynchronous actions
 
 // Fetch user list
@@ -22,7 +21,6 @@ export const fetchUserList = createAsyncThunk(
     }
   }
 );
-
 
 // Add user
 export const addUser = createAsyncThunk(
@@ -42,11 +40,11 @@ export const addUser = createAsyncThunk(
 // Update user
 export const updateUser = createAsyncThunk(
   'users/updateUser',
-  async ({ userId, userData }, { rejectWithValue }) => {
+  async ({ id, ...userData }, { rejectWithValue }) => {
     try {
-      await axios.put(`${apiBaseUrl}/api/users/${userId}`, userData);
+      await axios.put(`${apiBaseUrl}/api/users/${id}`, userData);
       toast.success("User Updated Successfully");
-      return userId; // Return the ID of the updated user
+      return id; // Return the ID of the updated user
     } catch (error) {
       toast.error(`Update failed: ${error.message}`);
       return rejectWithValue(error.message);
@@ -54,30 +52,28 @@ export const updateUser = createAsyncThunk(
   }
 );
 
-// Delete user
+// Delete user without browser confirm
 export const deleteUser = createAsyncThunk(
   'users/deleteUser',
   async (_id, { rejectWithValue, dispatch }) => {
-    if (window.confirm("Do you want to remove?")) {
-      try {
-        await axios.delete(`${apiBaseUrl}/api/users?id=${_id}`);
-
-        dispatch(fetchUserList()); // Refetch user list after deletion
-        return _id; // Return the deleted user ID
-      } catch (error) {
-        return rejectWithValue(error.message);
-      }
+    try {
+      // Directly proceed with delete request
+      await axios.delete(`${apiBaseUrl}/api/users?id=${_id}`);
+      dispatch(fetchUserList()); // Refetch user list after deletion
+      return _id; // Return the deleted user ID
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
-    return rejectWithValue("User deletion cancelled");
   }
 );
+
 
 // Fetch user by ID
 export const fetchUserObj = createAsyncThunk(
   'users/fetchUserObj',
-  async (userId, { rejectWithValue }) => {
+  async (_id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/api/users/${userId}`);
+      const response = await axios.get(`${apiBaseUrl}/api/users?id=${_id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -131,7 +127,7 @@ const dataSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         state.userList = state.userList.map(user =>
-          user.id === action.payload ? { ...user, ...action.meta.arg.userData } : user
+          user.id === action.payload ? { ...user, ...action.meta.arg } : user // Update the correct user
         );
       })
       .addCase(updateUser.rejected, (state, action) => {

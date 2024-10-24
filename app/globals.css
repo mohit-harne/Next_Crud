@@ -97,9 +97,11 @@
 
 @media (max-width: 578px) {
   .main{
-    scale: 70%;
-      margin-top: -100px !important;
+    scale: 60%;
+      margin-top: -530px !important;
       padding: 0%;
+      width: 630px;
+      margin-left: -110px;
       
     
   }
