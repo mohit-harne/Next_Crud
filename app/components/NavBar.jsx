@@ -3,7 +3,6 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ModeToggle } from './theme-btn';
 
@@ -19,7 +18,7 @@ export default function NavBar() {
       initial={{ opacity: 0, y: -60 }} // Slide from above
       animate={{ opacity: 1, y: 0 }}   // Fade in and move to original position
       transition={{ duration: 2.8, ease: "easeOut" }} // Adjusted to a faster and smoother duration
-      className="fixed top-0 left-0 w-full bg-white/30 backdrop-blur-lg border-gray-200 shadow-md px-4 py-1 z-50"
+      className="fixed top-0 left-0 w-full bg-white/30 backdrop-blur-lg border-gray-200 shadow-md px-4 py-3 z-40"
     >
       <div className="container flex flex-wrap justify-between items-center mx-auto">
         <Link href="/" className="text-2xl font-bold text-black">
@@ -65,25 +64,7 @@ export default function NavBar() {
                 Users
               </Link>
             </li>
-            <li>
-              <Link href="/About" className="block py-2 px-4 text-black rounded hover:bg-gray-100" onClick={handleMenuClick}>
-                About Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/Contact" className="block py-2 px-4 text-black rounded hover:bg-gray-100" onClick={handleMenuClick}>
-                Contact Us
-              </Link>
-            </li>
-            <li>
-              <a
-                href="tel:+123456789"
-                className="block py-2 px-4 text-gray-100 rounded-lg hover:bg-violet-900 bg-violet-700"
-                onClick={handleMenuClick}
-              >
-                Call Us
-              </a>
-            </li>
+           
             <li>
               <ModeToggle/>
             </li>

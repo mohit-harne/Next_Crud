@@ -1,5 +1,4 @@
-import NavBar from "@/app/components/NavBar";
-import Image from "next/image";
+
 
 export default function Home() {
   return (
