@@ -115,7 +115,7 @@ const UsersPage = () => {
       <div className="py-4 pt-5 main">
         <div className="shadow-md rounded-lg border border-gray-300">
             <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
-                <Link href="/user/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
+                <Link href="#" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
                     Add New User [+]
                 </Link>
             </div>
