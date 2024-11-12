@@ -52,24 +52,32 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.error.message;
             })
-            // Delete user
+        
+        // Separate delete user reducer
+        builder
             .addCase(deleteUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
                 state.loading = false;
+                // Filter out the deleted user by ID
                 state.users = state.users.filter((user) => user._id !== action.payload);
             })
-           
-            // Update user
+            .addCase(deleteUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+        
+        // Separate update user reducer
+        builder
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
             .addCase(updateUser.fulfilled, (state, action) => {
                 state.loading = false;
-                // Update the user in the state
+                // Find and update the user in the state
                 const updatedUser = action.payload;
                 const index = state.users.findIndex((user) => user._id === updatedUser._id);
                 if (index !== -1) {
