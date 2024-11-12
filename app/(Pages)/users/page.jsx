@@ -43,18 +43,24 @@ const UsersPage = () => {
         }
     
         dispatch(deleteUser(selectedUserId))
-    .then(() => {
-        toast.success("User deleted successfully!");
-        dispatch(fetchUserList(`?_t=${new Date().getTime()}`));
- // Fetch updated user list
-        setOpenModal(false); // Close modal
-    })
-    .catch((error) => {
-        console.error("Delete error:", error);
-        toast.error("Failed to delete user. Please try again.");
-    });
-
+            .then(() => {
+                toast.success("User deleted successfully!");
+                // Fetch updated list
+                dispatch(fetchUserList())
+                    .then(() => {
+                        console.log("Updated user list:", users); // Check if users are updated
+                        setOpenModal(false); // Close modal
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching users:", error);
+                    });
+            })
+            .catch((error) => {
+                console.error("Error deleting user:", error);
+                toast.error("Failed to delete user. Please try again.");
+            });
     };
+    
 
     const router = useRouter();
     
