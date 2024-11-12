@@ -7,26 +7,22 @@ export async function DELETE(req, { params }) {
         await connectToDatabase();
         console.log("Database connected successfully");
 
-        const { id } = params; // Get the dynamic ID from params
+        const { id } = params;
 
         if (!id) {
-            return new Response("User ID not provided", { status: 400 });
+            return new Response(JSON.stringify({ error: "User ID not provided" }), { status: 400, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // Find and delete the user by ID
         const deletedUser = await User.findByIdAndDelete(id);
 
         if (!deletedUser) {
-            return new Response("User not found", { status: 404 });
+            return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: { 'Content-Type': 'application/json' } });
         }
 
-        return new Response(
-            JSON.stringify({ message: "User deleted successfully" }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ message: "User deleted successfully" }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
         console.error("Error deleting user:", error);
-        return new Response(`Internal Server Error: ${error.message}`, { status: 500 });
+        return new Response(JSON.stringify({ error: `Internal Server Error: ${error.message}` }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 }
 
@@ -35,28 +31,22 @@ export async function PUT(req, { params }) {
         await connectToDatabase();
         console.log("Database connected successfully");
 
-        const { id } = params; // Get the dynamic ID from params
-        const data = await req.json(); // Get the update data from the request body
-
-        console.log("Update Data:", data); // Debugging log to check the request body
+        const { id } = params;
+        const data = await req.json();
 
         if (!id) {
-            return new Response("User ID not provided", { status: 400 });
+            return new Response(JSON.stringify({ error: "User ID not provided" }), { status: 400, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // Find and update the user by ID
         const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
 
         if (!updatedUser) {
-            return new Response("User not found", { status: 404 });
+            return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: { 'Content-Type': 'application/json' } });
         }
 
-        return new Response(
-            JSON.stringify(updatedUser),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify(updatedUser), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
         console.error("Error updating user:", error);
-        return new Response(`Internal Server Error: ${error.message}`, { status: 500 });
+        return new Response(JSON.stringify({ error: `Internal Server Error: ${error.message}` }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 }
