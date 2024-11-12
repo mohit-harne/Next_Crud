@@ -13,6 +13,7 @@ import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon";
 import { EyeIcon } from "./EyeIcon";
 import { columns } from "./data";
+import { useRouter } from 'next/navigation'; // Correct import for App Router
 
 const statusColorMap = {
     Active: "success",
@@ -45,15 +46,20 @@ const UsersPage = () => {
             .then(() => {
                 toast.success("User deleted successfully!");
                 setOpenModal(false); // Close modal after delete
-    
+                
                 // Fetch updated user list after successful deletion
                 dispatch(fetchUserList());
+    
+                // Redirect to /users page after deletion
+                router.push('/users');
             })
             .catch((error) => {
                 console.error("Delete error:", error);
                 toast.error("Failed to delete user. Please try again.");
             });
     };
+
+    const router = useRouter();
     
 
     const openDeleteModal = (userId, userName) => {
