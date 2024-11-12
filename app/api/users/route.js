@@ -15,6 +15,9 @@ export async function GET(req) {
         });
     } catch (error) {
         console.error("Error fetching users:", error);
-        return new Response(`Internal Server Error: ${error.message}`, { status: 500 });
+        return new Response(
+            JSON.stringify({ error: `Internal Server Error: ${error.message}` }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
     }
 }
