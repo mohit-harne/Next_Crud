@@ -44,16 +44,15 @@ const UsersPage = () => {
         dispatch(deleteUser(selectedUserId))
             .then(() => {
                 toast.success("User deleted successfully!");
-                setOpenModal(false); // Close modal after delete
-    
-                // Fetch updated user list after successful deletion
-                dispatch(fetchUserList());
+                dispatch(fetchUserList());  // Refresh the user list after delete
+                setOpenModal(false);        // Close the modal
             })
             .catch((error) => {
                 console.error("Delete error:", error);
                 toast.error("Failed to delete user. Please try again.");
             });
     };
+    
     
 
     const openDeleteModal = (userId, userName) => {
