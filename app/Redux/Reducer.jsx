@@ -30,10 +30,16 @@ const userSlice = createSlice({
         loading: false,
         error: null,
     },
-    reducers: {},
+    reducers: {
+        resetState: (state) => {
+            state.users = [];
+            state.loading = false;
+            state.error = null;
+        },
+    },
     extraReducers: (builder) => {
+        // Fetch user list
         builder
-            // Fetch user list
             .addCase(fetchUserList.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -59,6 +65,7 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.error.message;
             })
+            // Update user
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -78,6 +85,8 @@ const userSlice = createSlice({
             });
     },
 });
+
+export const { resetState } = userSlice.actions;
 
 export const selectUserList = (state) => state.users.users;
 export const selectLoadingStatus = (state) => state.users.loading;
