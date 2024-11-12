@@ -145,7 +145,7 @@ const UsersPage = () => {
                         </TableHeader>
                         <TableBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
                             {users.map((user) => (
-                                <TableRow key={user._id}>
+                                <TableRow key={user.id}>
                                     {columns.map((column) => (
                                         <TableCell key={column.uid}>
                                             {renderCell(user, column.uid)}
