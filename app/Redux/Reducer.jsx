@@ -5,7 +5,7 @@ import axios from 'axios';
 // Async thunk to fetch user list
 export const fetchUserList = createAsyncThunk('users/fetchUserList', async () => {
     const response = await axios.get('/api/users');
-    console.log('Fetched users:', response.data); // Debugging  
+    console.log('Fetched users:', response.data); // Debugging
     return response.data;
 });
 
@@ -13,12 +13,12 @@ export const fetchUserList = createAsyncThunk('users/fetchUserList', async () =>
 export const deleteUser = createAsyncThunk('users/deleteUser', async (userId) => {
     await axios.delete(`/api/users/${userId}`);
     console.log('Deleted user:', userId); // Debugging  
-    
+    return userId; // Return the ID for the fulfilled action
 });
 
 // Async thunk to update a user
 export const updateUser = createAsyncThunk('users/updateUser', async (userData) => {
-    const { id, ...data } = userData;  // Separate the ID from the rest of the data
+    const { id, ...data } = userData; // Separate the ID from the rest of the data
     const response = await axios.put(`/api/users/${id}`, data); // Make PUT request
     return response.data;
 });
@@ -51,9 +51,9 @@ const userSlice = createSlice({
             .addCase(fetchUserList.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
-            })
+            });
         
-        // Separate delete user reducer
+        // Delete user
         builder
             .addCase(deleteUser.pending, (state) => {
                 state.loading = true;
@@ -61,15 +61,15 @@ const userSlice = createSlice({
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
                 state.loading = false;
-                // Filter out the deleted user by ID
+                // Use the returned userId to filter out the deleted user
                 state.users = state.users.filter((user) => user._id !== action.payload);
             })
             .addCase(deleteUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
-            })
+            });
         
-        // Separate update user reducer
+        // Update user
         builder
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
