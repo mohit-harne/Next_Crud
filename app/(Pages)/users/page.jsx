@@ -43,20 +43,16 @@ const UsersPage = () => {
         }
     
         dispatch(deleteUser(selectedUserId))
-            .then(() => {
-                toast.success("User deleted successfully!");
-                setOpenModal(false); // Close modal after delete
-                
-                // // Fetch updated user list after successful deletion
-                // dispatch(fetchUserList());
-    
-                // Redirect to /users page after deletion
-                // router.push('/users');
-            })
-            .catch((error) => {
-                console.error("Delete error:", error);
-                toast.error("Failed to delete user. Please try again.");
-            });
+    .then(() => {
+        toast.success("User deleted successfully!");
+        dispatch(fetchUserList()); // Fetch updated user list
+        setOpenModal(false); // Close modal
+    })
+    .catch((error) => {
+        console.error("Delete error:", error);
+        toast.error("Failed to delete user. Please try again.");
+    });
+
     };
 
     const router = useRouter();
@@ -145,7 +141,7 @@ const UsersPage = () => {
                         </TableHeader>
                         <TableBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
                             {users.map((user) => (
-                                <TableRow key={user.id}>
+                                <TableRow key={user._id}>
                                     {columns.map((column) => (
                                         <TableCell key={column.uid}>
                                             {renderCell(user, column.uid)}
