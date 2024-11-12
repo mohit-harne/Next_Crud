@@ -13,7 +13,7 @@ export const fetchUserList = createAsyncThunk('users/fetchUserList', async () =>
 export const deleteUser = createAsyncThunk('users/deleteUser', async (userId) => {
     await axios.delete(`/api/users/${userId}`);
     console.log('Deleted user:', userId); // Debugging  
-    return userId;
+    
 });
 
 // Async thunk to update a user
