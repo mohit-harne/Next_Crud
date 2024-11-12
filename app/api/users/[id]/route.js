@@ -20,10 +20,10 @@ export async function DELETE(req, { params }) {
             return new Response("User not found", { status: 404 });
         }
 
-        return new Response(JSON.stringify({ message: "User deleted successfully" }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return new Response(
+            JSON.stringify({ message: "User deleted successfully" }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
     } catch (error) {
         console.error("Error deleting user:", error);
         return new Response(`Internal Server Error: ${error.message}`, { status: 500 });
@@ -51,10 +51,10 @@ export async function PUT(req, { params }) {
             return new Response("User not found", { status: 404 });
         }
 
-        return new Response(JSON.stringify(updatedUser), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return new Response(
+            JSON.stringify(updatedUser),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
     } catch (error) {
         console.error("Error updating user:", error);
         return new Response(`Internal Server Error: ${error.message}`, { status: 500 });
