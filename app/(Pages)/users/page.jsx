@@ -45,7 +45,8 @@ const UsersPage = () => {
         dispatch(deleteUser(selectedUserId))
     .then(() => {
         toast.success("User deleted successfully!");
-        dispatch(fetchUserList()); // Fetch updated user list
+        dispatch(fetchUserList(`?_t=${new Date().getTime()}`));
+ // Fetch updated user list
         setOpenModal(false); // Close modal
     })
     .catch((error) => {
