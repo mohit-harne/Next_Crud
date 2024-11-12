@@ -40,17 +40,21 @@ const UsersPage = () => {
             toast.error("User ID is missing!");
             return;
         }
-        
+    
         dispatch(deleteUser(selectedUserId))
             .then(() => {
                 toast.success("User deleted successfully!");
                 setOpenModal(false); // Close modal after delete
+    
+                // Fetch updated user list after successful deletion
+                dispatch(fetchUserList());
             })
             .catch((error) => {
                 console.error("Delete error:", error);
                 toast.error("Failed to delete user. Please try again.");
             });
     };
+    
 
     const openDeleteModal = (userId, userName) => {
         setSelectedUserId(userId);
