@@ -61,10 +61,7 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.users = state.users.filter((user) => user._id !== action.payload);
             })
-            .addCase(deleteUser.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message;
-            })
+           
             // Update user
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
