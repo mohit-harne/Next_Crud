@@ -51,7 +51,7 @@ const UsersPage = () => {
                 // dispatch(fetchUserList());
     
                 // Redirect to /users page after deletion
-                router.push('/users');
+                // router.push('/users');
             })
             .catch((error) => {
                 console.error("Delete error:", error);
