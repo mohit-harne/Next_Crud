@@ -47,8 +47,8 @@ const UsersPage = () => {
                 toast.success("User deleted successfully!");
                 setOpenModal(false); // Close modal after delete
                 
-                // Fetch updated user list after successful deletion
-                dispatch(fetchUserList());
+                // // Fetch updated user list after successful deletion
+                // dispatch(fetchUserList());
     
                 // Redirect to /users page after deletion
                 router.push('/users');
