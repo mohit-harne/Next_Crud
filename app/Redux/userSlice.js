@@ -69,5 +69,7 @@ export const { resetState } = userSlice.actions;
 export const selectUserList = (state) => state.users.users;
 export const selectLoadingStatus = (state) => state.users.loading;
 export const selectErrorMessage = (state) => state.users.error;
+// In userSlice.js or userThunks.js (wherever these functions are defined)
+export { fetchUserList, updateUser }; // Ensure these functions are exported here
 
 export default userSlice.reducer;
