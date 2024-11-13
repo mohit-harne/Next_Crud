@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserList, updateUser, selectUserList, selectLoadingStatus } from '../../../Redux/Reducer';
+import { fetchUserList, updateUser, selectUserList, selectLoadingStatus } from '../../../Redux/userSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
