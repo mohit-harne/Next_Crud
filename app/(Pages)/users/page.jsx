@@ -41,23 +41,31 @@ const UsersPage = () => {
             .catch((error) => console.error("Error fetching users after delete:", error));
     }, [dispatch, reload]);
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (!selectedUserId) {
             console.error("User ID is missing!");
             toast.error("User ID is missing!");
             return;
         }
     
-        dispatch(deleteUser(selectedUserId))
-            .then(() => {
-                toast.success("User deleted successfully!");
-                setReload((prev) => !prev); // Trigger re-render
-                setOpenModal(false); // Close modal
-            })
-            .catch((error) => {
-                console.error("Error deleting user:", error);
-                toast.error("Failed to delete user. Please try again.");
-            });
+        try {
+            // Dispatch delete action
+            await dispatch(deleteUser(selectedUserId));
+
+            // Log to confirm user ID
+            console.log("Deleted user:", selectedUserId);
+
+            // Fetch updated user list after deletion
+            await dispatch(fetchUserList());
+
+            // Show success toast
+            toast.success("User deleted successfully!");
+            setReload((prev) => !prev); // Trigger re-render
+            setOpenModal(false); // Close modal
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            toast.error("Failed to delete user. Please try again.");
+        }
     };
 
     const router = useRouter();
