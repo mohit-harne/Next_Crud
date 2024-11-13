@@ -2,9 +2,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Async thunk to fetch user list
+// Async thunk to fetch the list of users
 export const fetchUserList = createAsyncThunk('users/fetchUserList', async () => {
-    const response = await axios.get(`/api/users/[id]`);
+    const response = await axios.get('/api/users'); // Fetching from the correct endpoint
     console.log('Fetched users:', response.data); // Debugging
     return response.data;
 });
@@ -22,3 +22,19 @@ export const updateUser = createAsyncThunk('users/updateUser', async (userData) 
     const response = await axios.put(`/api/users/${id}`, data);
     return response.data;
 });
+
+// Async thunk to add a user
+export const addUser = createAsyncThunk(
+    'users/addUser',
+    async (userData, { rejectWithValue }) => {
+        try {
+            // Make sure the URL is correct
+            const response = await axios.post('/api/users', userData);
+            return response.data;
+        } catch (error) {
+            // Handle error properly, logging and passing the error data
+            console.error('Error adding user:', error);
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);

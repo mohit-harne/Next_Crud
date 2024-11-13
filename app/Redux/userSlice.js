@@ -1,6 +1,6 @@
 // Redux/userSlice.js
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchUserList, deleteUser, updateUser } from './userThunks';
+import { fetchUserList, deleteUser, updateUser, addUser } from './userThunks';
 
 const userSlice = createSlice({
     name: 'users',
@@ -60,6 +60,13 @@ const userSlice = createSlice({
             .addCase(updateUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
+            })
+            // Add user
+            .addCase(addUser.fulfilled, (state, action) => {
+                state.users.push(action.payload); // Add the new user to the list
+            })
+            .addCase(addUser.rejected, (state, action) => {
+                state.error = action.payload;
             });
     },
 });
@@ -69,7 +76,8 @@ export const { resetState } = userSlice.actions;
 export const selectUserList = (state) => state.users.users;
 export const selectLoadingStatus = (state) => state.users.loading;
 export const selectErrorMessage = (state) => state.users.error;
+
 // In userSlice.js or userThunks.js (wherever these functions are defined)
-export { fetchUserList, updateUser }; // Ensure these functions are exported here
+export { fetchUserList, updateUser, addUser }; // Ensure these functions are exported here
 
 export default userSlice.reducer;
