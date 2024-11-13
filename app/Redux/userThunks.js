@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Async thunk to fetch user list
 export const fetchUserList = createAsyncThunk('users/fetchUserList', async () => {
-    const response = await axios.get('/api/users');
+    const response = await axios.get(`/api/users/[id]`);
     console.log('Fetched users:', response.data); // Debugging
     return response.data;
 });
