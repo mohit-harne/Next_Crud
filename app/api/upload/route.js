@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server';
-import cloudinary from 'cloudinary';
-import formidable from 'formidable';
 import connectToDatabase from '../../../lib/mongoose';
 import User from '../../../models/User';
 
 // Cloudinary configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 // Next.js 14 update for route config
 export const runtime = 'edge';
