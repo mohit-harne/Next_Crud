@@ -141,19 +141,19 @@ const UsersPage = () => {
                             <button
                                 onClick={() => router.push(`/details/${user._id}`)}
                                 className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                <EyeIcon />
+                                <EyeIcon className="size-[30px]"/>
                             </button>
                         </Tooltip>
                         <Tooltip content="Edit user">
                             <Link href={`/edit/${user._id}`} className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                <EditIcon />
+                                <EditIcon className="size-[30px]" />
                             </Link>
                         </Tooltip>
                         <Tooltip color="danger" content="Delete user">
                             <span onClick={() => openDeleteModal(user._id, user.first_name)}
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
                             >
-                                <DeleteIcon />
+                                <DeleteIcon className="size-[30px]"/>
                             </span>
                         </Tooltip>
                     </div>
@@ -211,13 +211,14 @@ const UsersPage = () => {
             <ToastContainer className="z-50 mt-[100px]" />
       
             <Modal
-                className="w-1/2 mx-auto my-auto h-fit bg-transparent"
+                className="w-1/2 mx-auto my-auto h-fit "
                 show={openBulkDeleteModal}
                 position="center"
                 onClose={() => setOpenBulkDeleteModal(false)}
             >
-                <Modal.Header className="text-black text-center">Confirm Bulk Delete</Modal.Header>
-                <Modal.Body className="text-black text-center">
+                <div className='bg-gray-600 rounded-xl border-4 border-yellow-500'>
+                <Modal.Header className="text-white text-center">Confirm Bulk Delete</Modal.Header>
+                <Modal.Body className="text-white text-center ">
                     Are you sure you want to delete the selected users?
                 </Modal.Body>
                 <Modal.Footer className="flex justify-center gap-8">
@@ -228,18 +229,21 @@ const UsersPage = () => {
                         Cancel
                     </button>
                 </Modal.Footer>
+                </div>
             </Modal>
       
             <Modal
                 show={openModal}
                 size="sm"
                 onClose={() => setOpenModal(false)}
+                 className="w-1/2 mx-auto my-auto h-fit "
             >
-                <Modal.Header>Are you sure you want to delete this user?</Modal.Header>
-                <Modal.Body>
-                    {selectedUserName}
+                <div className='bg-gray-600 rounded-xl border-4 border-yellow-500'>
+                <Modal.Header className='text-white'>Are you sure you want to delete this user?</Modal.Header>
+                <Modal.Body className='text-white'>
+                   <h1 className='text-2xl tracking-wider'> {selectedUserName}</h1>
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer className="flex justify-center gap-8">
                     <button
                         onClick={handleDelete}
                         className="text-white bg-red-500 hover:bg-red-700 rounded px-4 py-2"
@@ -253,6 +257,7 @@ const UsersPage = () => {
                         Cancel
                     </button>
                 </Modal.Footer>
+                </div>
             </Modal>
         </div>
     );

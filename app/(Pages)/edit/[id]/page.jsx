@@ -20,7 +20,7 @@ const UpdateUser = () => {
         email: '',
         role: '',
         status: '',
-        image: ''  // Add image URL field here
+        image: '',  // Base64 image data
     });
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const UpdateUser = () => {
                     email: foundUser.email,
                     role: foundUser.role,
                     status: foundUser.status,
-                    image: foundUser.image || ''  // Set initial value if available
+                    image: foundUser.image || '',
                 });
             }
         }
@@ -49,14 +49,30 @@ const UpdateUser = () => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: value
+            [name]: value,
         }));
     };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result.split(',')[1]; // Remove the prefix
+                setFormData((prevData) => ({
+                    ...prevData,
+                    image: base64String,  // Set only the base64 string
+                }));
+            };
+            reader.readAsDataURL(file);  // Convert image to base64
+        }
+    };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            console.log("Form Data Before Submit:", formData); // Check if image URL is included
+            console.log("Form Data Before Submit:", formData);  // Check if image data is included
             await dispatch(updateUser({ id, ...formData })).unwrap();
             toast.success('User updated successfully!');
             router.push('/users');
@@ -64,7 +80,6 @@ const UpdateUser = () => {
             toast.error('Error updating user');
         }
     };
-    
 
     if (loading) {
         return <p className='mt-[130px] text-2xl text-center'>Loading user data...</p>;
@@ -126,13 +141,13 @@ const UpdateUser = () => {
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="image">Image URL:</label>
+                        <label htmlFor="image">Upload Image:</label>
                         <input
-                            type="url"
+                            type="file"
                             id="image"
                             name="image"
-                            value={formData.image}
-                            onChange={handleInputChange}
+                            accept="image/*"
+                            onChange={handleImageChange}
                             className="border rounded p-2 w-full"
                         />
                     </div>
