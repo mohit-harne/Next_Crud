@@ -39,9 +39,9 @@ const UserDetails = () => {
 
     return (
         <div className='flex justify-center flex-col items-center'>
-            <div className='mt-[100px] lg:w-1/2 lg scale-85 lg:scale-100 '>
+            <div className='mt-[100px] lg:w-1/2 lg scale-80 lg:scale-100 '>
                 <h1 className='text-[30px] font-bold tracking-wider underline-offset-8 underline'>User Details</h1>
-                <div className=" border p-4 shadow-md rounded-xl flex items-start justify-between mt-[50px]">
+                <div className=" border p-4 shadow-md rounded-xl flex items-start gap-[30px] justify-between mt-[50px]">
                    <div className='flex flex-col gap-[20px] text-lg'>
                    <p><strong>Name :</strong> {user.first_name}</p>
                     <p><strong>Email :</strong> {user.email}</p>
