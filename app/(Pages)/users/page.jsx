@@ -31,12 +31,13 @@ const UsersPage = () => {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [selectedUserName, setSelectedUserName] = useState('');
     const [reload, setReload] = useState(false);
+    const [selectedUsers, setSelectedUsers] = useState([]); // State to hold selected users
+    const [openBulkDeleteModal, setOpenBulkDeleteModal] = useState(false); // For bulk delete modal
 
-    // Fetch user list initially and after each deletion
     useEffect(() => {
         dispatch(fetchUserList())
             .then((response) => {
-                console.log("Fetched users after delete:", response.payload); // Log fetched data directly
+                console.log("Fetched users after delete:", response.payload); 
             })
             .catch((error) => console.error("Error fetching users after delete:", error));
     }, [dispatch, reload]);
@@ -49,22 +50,38 @@ const UsersPage = () => {
         }
     
         try {
-            // Dispatch delete action
             await dispatch(deleteUser(selectedUserId));
-
-            // Log to confirm user ID
             console.log("Deleted user:", selectedUserId);
 
-            // Fetch updated user list after deletion
-            await dispatch(fetchUserList());
+            // Optimistically update the state without re-fetching
+            dispatch(fetchUserList());
 
-            // Show success toast
             toast.success("User deleted successfully!");
-            setReload((prev) => !prev); // Trigger re-render
-            setOpenModal(false); // Close modal
+            setReload((prev) => !prev); 
+            setOpenModal(false);
+
+            // Reset selected user data after deletion
+            setSelectedUserId(null);
+            setSelectedUserName('');
         } catch (error) {
             console.error("Error deleting user:", error);
             toast.error("Failed to delete user. Please try again.");
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        try {
+            for (const userId of selectedUsers) {
+                await dispatch(deleteUser(userId)); // Delete each selected user
+            }
+            dispatch(fetchUserList()); // Re-fetch after deletion
+            toast.success("Users deleted successfully!");
+            setSelectedUsers([]); // Clear selected users
+            setOpenBulkDeleteModal(false); // Close modal
+            setReload((prev) => !prev); // Trigger a reload
+        } catch (error) {
+            console.error("Error deleting users:", error);
+            toast.error("Failed to delete users. Please try again.");
         }
     };
 
@@ -73,16 +90,31 @@ const UsersPage = () => {
     const openDeleteModal = (userId, userName) => {
         setSelectedUserId(userId);
         setSelectedUserName(userName);
-        setOpenModal(true); // Open modal
+        setOpenModal(true);
+    };
+
+    const toggleSelectUser = (userId) => {
+        setSelectedUsers((prevSelected) =>
+            prevSelected.includes(userId)
+                ? prevSelected.filter((id) => id !== userId) // Unselect user
+                : [...prevSelected, userId] // Select user
+        );
     };
 
     const renderCell = useCallback((user, columnKey) => {
         const cellValue = user[columnKey];
         switch (columnKey) {
             case "name":
+               
                 return (
                     <div className='flex items-center gap-6'>
-                        <img src={user.image} alt='User' className='size-14 rounded-full' />
+                        <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(user._id)} // Check if this user is selected
+                            onChange={() => toggleSelectUser(user._id)} // Toggle selection
+                            className="mr-4"
+                        />
+                        <img src={`data:image/png;base64,${user.image}`}  alt='User' className='size-14 rounded-full' />
                         <div>
                             <h1 className='text-xl font-bold tracking-wide'>{user.first_name}</h1>
                             <h3 className='text-sm'>{user.email}</h3>
@@ -106,9 +138,11 @@ const UsersPage = () => {
                 return (
                     <div className="relative flex items-center gap-4">
                         <Tooltip content="Details">
-                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                            <button
+                                onClick={() => router.push(`/details/${user._id}`)}
+                                className="text-lg text-default-400 cursor-pointer active:opacity-50">
                                 <EyeIcon />
-                            </span>
+                            </button>
                         </Tooltip>
                         <Tooltip content="Edit user">
                             <Link href={`/edit/${user._id}`} className="text-lg text-default-400 cursor-pointer active:opacity-50">
@@ -127,69 +161,100 @@ const UsersPage = () => {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [router, selectedUsers]);
 
     return (
-      <div className="py-4 pt-5 main">
-        <div className="shadow-md rounded-lg border border-gray-300">
-            <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
-                <Link href="/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
-                    Add New User [+]
-                </Link>
+        <div className="py-4 pt-5 main">
+            <div className="shadow-md rounded-lg border border-gray-300">
+                <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
+                    <Link href="/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
+                        Add New User [+]
+                    </Link>
+                    {selectedUsers.length > 0 && (
+                        <button
+                            onClick={() => setOpenBulkDeleteModal(true)}
+                            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded shadow-md text-white ml-4"
+                        >
+                            Delete Selected Users
+                        </button>
+                    )}
+                </div>
+                <div className="p-4" style={{ minHeight: '400px' }}>
+                    {loading ? (
+                        <div className="text-center py-4">Loading...</div>
+                    ) : error ? (
+                        <div className="text-center py-4 text-red-500">Error: {error}</div>
+                    ) : (
+                        <Table aria-label="User Table" className="overflow-x-auto">
+                            <TableHeader>
+                                {columns.map((column) => (
+                                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"} className='text-left tracking-widest text-xl'>
+                                        {column.name}
+                                    </TableColumn>
+                                ))}
+                            </TableHeader>
+                            <TableBody>
+                                {users.map((user) => (
+                                    <TableRow key={user._id}>
+                                        {columns.map((column) => (
+                                            <TableCell key={column.uid}>
+                                                {renderCell(user, column.uid)}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
+                </div>
             </div>
-            <div className="p-4" style={{ minHeight: '400px' }}>
-                {loading ? (
-                    <div className="text-center py-4">Loading...</div>
-                ) : error ? (
-                    <div className="text-center py-4 text-red-500">Error: {error}</div>
-                ) : (
-                    <Table aria-label="User Table" className="overflow-x-auto">
-                        <TableHeader>
-                            {columns.map((column) => (
-                                <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"} className='text-left tracking-widest text-xl'>
-                                    {column.name}
-                                </TableColumn>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((user) => (
-                                <TableRow key={user._id}>
-                                    {columns.map((column) => (
-                                        <TableCell key={column.uid}>
-                                            {renderCell(user, column.uid)}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                )}
-            </div>
-        </div>
-        <ToastContainer className="z-50 mt-[100px]" />
+            <ToastContainer className="z-50 mt-[100px]" />
       
-        <Modal
-            className="w-1/2 mx-auto my-auto h-fit bg-transparent"
-            show={openModal}
-            position="center"
-            onClose={() => setOpenModal(false)}
-        >
-            <Modal.Header className="text-black text-center">Confirm Delete</Modal.Header>
-            <Modal.Body className="text-black text-center">
-                Are you sure you want to delete profile of <span className='font-bold'>{selectedUserName}</span>?
-            </Modal.Body>
-            <Modal.Footer className="flex justify-center gap-8">
-                <button onClick={handleDelete} className="bg-red-500 py-2 px-4 rounded-2xl shadow-lg text-white hover:scale-105 transition-all duration-300">Delete</button>
-                <button
-                    color="gray"
-                    onClick={() => setOpenModal(false)}
-                    className="text-black py-2 px-4 rounded-2xl border-2 border-green-500 hover:scale-105 transition-all duration-300 shadow-lg"
-                >
-                    Cancel
-                </button>
-            </Modal.Footer>
-        </Modal>
-      </div>
+            <Modal
+                className="w-1/2 mx-auto my-auto h-fit bg-transparent"
+                show={openBulkDeleteModal}
+                position="center"
+                onClose={() => setOpenBulkDeleteModal(false)}
+            >
+                <Modal.Header className="text-black text-center">Confirm Bulk Delete</Modal.Header>
+                <Modal.Body className="text-black text-center">
+                    Are you sure you want to delete the selected users?
+                </Modal.Body>
+                <Modal.Footer className="flex justify-center gap-8">
+                    <button onClick={handleBulkDelete} className="bg-red-600 px-4 py-2 rounded text-white">
+                        Yes, Delete
+                    </button>
+                    <button onClick={() => setOpenBulkDeleteModal(false)} className="bg-gray-300 px-4 py-2 rounded text-black">
+                        Cancel
+                    </button>
+                </Modal.Footer>
+            </Modal>
+      
+            <Modal
+                show={openModal}
+                size="sm"
+                onClose={() => setOpenModal(false)}
+            >
+                <Modal.Header>Are you sure you want to delete this user?</Modal.Header>
+                <Modal.Body>
+                    {selectedUserName}
+                </Modal.Body>
+                <Modal.Footer>
+                    <button
+                        onClick={handleDelete}
+                        className="text-white bg-red-500 hover:bg-red-700 rounded px-4 py-2"
+                    >
+                        Delete
+                    </button>
+                    <button
+                        onClick={() => setOpenModal(false)}
+                        className="bg-gray-300 text-black rounded px-4 py-2"
+                    >
+                        Cancel
+                    </button>
+                </Modal.Footer>
+            </Modal>
+        </div>
     );
 };
 

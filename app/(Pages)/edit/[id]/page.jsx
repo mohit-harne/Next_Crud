@@ -19,7 +19,8 @@ const UpdateUser = () => {
         first_name: '',
         email: '',
         role: '',
-        status: ''
+        status: '',
+        image: ''  // Add image URL field here
     });
 
     useEffect(() => {
@@ -37,7 +38,8 @@ const UpdateUser = () => {
                     first_name: foundUser.first_name,
                     email: foundUser.email,
                     role: foundUser.role,
-                    status: foundUser.status
+                    status: foundUser.status,
+                    image: foundUser.image || ''  // Set initial value if available
                 });
             }
         }
@@ -54,7 +56,7 @@ const UpdateUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            console.log("Form Data Before Submit:", formData); // Check if status is included
+            console.log("Form Data Before Submit:", formData); // Check if image URL is included
             await dispatch(updateUser({ id, ...formData })).unwrap();
             toast.success('User updated successfully!');
             router.push('/users');
@@ -74,61 +76,72 @@ const UpdateUser = () => {
 
     return (
         <div className='flex justify-center flex-col items-center'>
-        <div className='mt-[100px] w-1/2 '>
-            <h1>Update User</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="first_name">Name:</label>
-                    <input
-                        type="text"
-                        id="first_name"
-                        name="first_name"
-                        value={formData.first_name}
-                        onChange={handleInputChange}
-                        className="border rounded p-2 w-full"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="border rounded p-2 w-full"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="role">Role:</label>
-                    <input
-                        type="text"
-                        id="role"
-                        name="role"
-                        value={formData.role}
-                        onChange={handleInputChange}
-                        className="border rounded p-2 w-full"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="status">Status:</label>
-                    <select
-                       id="status"
-                       name="status"
-                       value={formData.status}
-                       onChange={handleInputChange}
-                        className="border rounded p-2 w-full"
-                    >
-                        <option >Active</option>
-                        <option >Inactive</option>
-                    </select>
-                </div>
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-                    Update User
-                </button>
-            </form>
-            <ToastContainer />
-        </div>
+            <div className='mt-[100px] w-1/2 '>
+                <h1>Update User</h1>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="first_name">Name:</label>
+                        <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            value={formData.first_name}
+                            onChange={handleInputChange}
+                            className="border rounded p-2 w-full"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="email">Email:</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className="border rounded p-2 w-full"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="role">Role:</label>
+                        <input
+                            type="text"
+                            id="role"
+                            name="role"
+                            value={formData.role}
+                            onChange={handleInputChange}
+                            className="border rounded p-2 w-full"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="status">Status:</label>
+                        <select
+                           id="status"
+                           name="status"
+                           value={formData.status}
+                           onChange={handleInputChange}
+                           className="border rounded p-2 w-full"
+                        >
+                            <option>Active</option>
+                            <option>Inactive</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="image">Image URL:</label>
+                        <input
+                            type="url"
+                            id="image"
+                            name="image"
+                            value={formData.image}
+                            onChange={handleInputChange}
+                            className="border rounded p-2 w-full"
+                        />
+                    </div>
+                    <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                        Update User
+                    </button>
+                </form>
+                <ToastContainer />
+            </div>
         </div>
     );
 };

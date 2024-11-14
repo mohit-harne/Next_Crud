@@ -23,13 +23,41 @@ export const updateUser = createAsyncThunk('users/updateUser', async (userData) 
     return response.data;
 });
 
-// Async thunk to add a user
+// Async thunk to add a user with image upload progress tracking
 export const addUser = createAsyncThunk(
     'users/addUser',
-    async (userData, { rejectWithValue }) => {
+    async (userData, { rejectWithValue, dispatch }) => {
         try {
-            // Make sure the URL is correct
-            const response = await axios.post('/api/users', userData);
+            const { first_name, email, role, status, phone, image } = userData;
+
+            // Log userData to check email value
+            console.log('Adding user with data:', userData);
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('first_name', first_name);
+            formData.append('email', email);
+            formData.append('role', role);
+            formData.append('status', status);
+            formData.append('phone', phone);
+            if (image) {
+                formData.append('image', image); // Append image file
+            }
+
+            // Axios request config to handle upload progress
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Set the correct content type
+                },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    // Dispatch an action or update state for progress
+                    dispatch(setUploadProgress(percentCompleted));
+                },
+            };
+
+            // Send request to add user
+            const response = await axios.post('/api/users', formData, config);
             return response.data;
         } catch (error) {
             // Handle error properly, logging and passing the error data
@@ -38,3 +66,9 @@ export const addUser = createAsyncThunk(
         }
     }
 );
+
+// Action to store upload progress
+export const setUploadProgress = (progress) => ({
+    type: 'users/setUploadProgress',
+    payload: progress,
+});
