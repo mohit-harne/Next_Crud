@@ -1,4 +1,3 @@
-// blog/app/(Pages)/user/[id]/page.jsx
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -8,7 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const UserDetails = () => {
     const params = useParams();
-    const { id } = params; // Get user ID from route parameters
+    const { id } = params;
+    const userId = decodeURIComponent(id);
     const dispatch = useDispatch();
     const users = useSelector(selectUserList);
     const loading = useSelector(selectLoadingStatus);
@@ -21,37 +21,48 @@ const UserDetails = () => {
     }, [dispatch, users]);
 
     useEffect(() => {
-        if (id && users.length > 0) {
-            const foundUser = users.find((user) => user._id === id);
+        if (userId && users.length > 0) {
+            const foundUser = users.find((user) => user._id === userId);
             if (foundUser) {
                 setUser(foundUser);
             }
         }
-    }, [id, users]);
+    }, [userId, users]);
 
     if (loading) {
-        return <p className='mt-[130px] text-2xl text-center'>Loading user data...</p>;
+        return <p className="mt-[130px] text-2xl text-center">Loading user data...</p>;
     }
 
     if (!user) {
-        return <p>No user found with the provided ID.</p>;
+        return <p className="mt-[130px] text-center text-red-500">No user found with the provided ID.</p>;
     }
 
     return (
-        <div className='flex justify-center flex-col items-center'>
-            <div className='mt-[100px] lg:w-1/2 lg scale-80 lg:scale-100 '>
-                <h1 className='text-[30px] font-bold tracking-wider underline-offset-8 underline'>User Details</h1>
-                <div className=" border p-4 shadow-md rounded-xl flex items-start gap-[30px] justify-between mt-[50px]">
-                   <div className='flex flex-col gap-[20px] text-lg'>
-                   <p><strong>Name :</strong> {user.first_name}</p>
-                    <p><strong>Email :</strong> {user.email}</p>
-                    <p><strong>Role :</strong> {user.role}</p>
-                    <p><strong>Status :</strong> {user.status}</p>
-                    <p><strong>Phone :</strong> {user.phone}</p>
-                   </div>
+        <div className="flex justify-center flex-col items-center">
+            <div className="mt-[100px] lg:w-1/2 lg scale-80 lg:scale-100">
+                <h1 className="text-[30px] font-bold tracking-wider underline-offset-8 underline">User Details</h1>
+                <div className="border p-4 shadow-md rounded-xl flex items-start gap-[30px] justify-between mt-[50px]">
+                    <div className="flex flex-col gap-[20px] text-lg">
+                        <p><strong>Name:</strong> {user.first_name || 'N/A'}</p>
+                        <p><strong>Email:</strong> {user.email || 'N/A'}</p>
+                        <p><strong>Role:</strong> {user.role || 'N/A'}</p>
+                        <p><strong>Status:</strong> {user.status || 'N/A'}</p>
+                        <p><strong>Phone:</strong> {user.phone || 'N/A'}</p>
+                        {user.dob && <p><strong>Date of Birth:</strong> {new Date(user.dob).toLocaleDateString()}</p>}
+                        {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                        {user.gender && <p><strong>Gender:</strong> {user.gender}</p>}
+                        {user.blood_group && <p><strong>Blood Group:</strong> {user.blood_group}</p>}
+                        {user.languages_known && Array.isArray(user.languages_known) && (
+                            <p><strong>Languages Known:</strong> {user.languages_known.join(', ')}</p>
+                        )}
+                    </div>
                     {user.image && (
-                        <div className='p-3 border-2  border-white rounded-xl shadow-md'>
-                            <img src={`data:image/png;base64,${user.image}`} alt={`${user.first_name}'s profile`} className="mt-2 w-32 h-32 rounded-full" />
+                        <div className="p-3 border-2 border-white rounded-xl shadow-md">
+                            <img
+                                src={user.image}  // Base64 image is already in correct format
+                                alt={`${user.first_name}'s profile`}
+                                className="mt-2 w-32 h-32 rounded-full object-cover"
+                            />
                         </div>
                     )}
                 </div>

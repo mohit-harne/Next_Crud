@@ -60,7 +60,7 @@ export default function NavBar() {
               </Link>
             </li>
             <li>
-              <Link href="/users" className="block py-2 px-4 text-black rounded hover:bg-gray-100" onClick={handleMenuClick}>
+              <Link href="/users" className="block py-2 px-4 text-black rounded hover:bg-gray-100" >
                 Users
               </Link>
             </li>

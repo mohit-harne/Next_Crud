@@ -1,18 +1,47 @@
 import mongoose from 'mongoose';
 
-// Define the schema for the user
 const userSchema = new mongoose.Schema({
-  first_name: { type: String, required: true },  // First name of the user
-  email: { type: String, required: true, unique: true },  // Email address (must be unique)
-  phone: { type: String, required: true },  // Phone number
-  role: { type: String, required: true },  // Role of the user (e.g., Admin, User)
-  status: { type: String, required: true }, // Status of the user (e.g., Active, Inactive)
-  image: { type: String, required: false } // Base64-encoded image data
+    first_name: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    role: {
+        type: String,
+        required: true,
+    },
+    status: {
+        type: String,
+        required: true,
+    },
+    phone: {
+        type: String,
+    },
+    dob: {
+        type: Date,
+    },
+    address: {
+        type: String,
+    },
+    gender: {
+        type: String,
+    },
+    blood_group: {
+        type: String,
+    },
+    languages_known: {
+        type: [String],
+    },
+    image: {
+        type: String, // Store base64 image string
+    }
 }, {
-  collection: 'testingcollections' // Explicitly specify the collection name
+    timestamps: true
 });
 
-// Check if the model is already created to prevent re-creating it during hot reloading
 const User = mongoose.models.User || mongoose.model('User', userSchema);
-
 export default User;

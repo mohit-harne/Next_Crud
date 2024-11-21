@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserList, updateUser, selectUserList, selectLoadingStatus } from '../../../Redux/userSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { BarLoader } from 'react-spinners';
 
 const UpdateUser = () => {
     const params = useParams();
@@ -82,7 +83,12 @@ const UpdateUser = () => {
     };
 
     if (loading) {
-        return <p className='mt-[130px] text-2xl text-center'>Loading user data...</p>;
+        return  <div className='flex item-center justify-center mt-[300px]'>   <BarLoader
+        color="#4bf003"
+        height={8}
+        width={200}
+        
+      /> </div>;
     }
 
     if (!user) {
