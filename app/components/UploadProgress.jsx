@@ -1,4 +1,4 @@
-const UploadProgress = ({ progress }) => {
+const UploadProgress = ({ progress = 0 }) => { // Default to 0 if undefined
     // Ensure progress is between 0 and 100
     const normalizedProgress = Math.min(Math.max(progress, 0), 100);
     

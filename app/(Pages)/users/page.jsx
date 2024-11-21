@@ -1,289 +1,223 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserList, deleteUser } from '../../Redux/userThunks';
-import { selectUserList, selectLoadingStatus, selectErrorMessage } from '../../Redux/userSlice';
-import '../../globals.css';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Link from 'next/link';
-import { Modal } from 'flowbite-react';
-import React from "react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip } from "@nextui-org/react";
-import { EditIcon } from "./EditIcon";
-import { DeleteIcon } from "./DeleteIcon";
-import { EyeIcon } from "./EyeIcon";
-import { columns } from "./data";
+import { fetchUserList, deleteUser, bulkDeleteUsers } from '../../Redux/userThunks';
+import { selectUserList, selectLoadingStatus } from '../../Redux/userSlice';
 import { useRouter } from 'next/navigation';
-import { BarLoader } from 'react-spinners';
-
-const statusColorMap = {
-    Active: "success",
-    Inactive: "danger",
-    vacation: "warning",
-};
+import { toast, ToastContainer } from 'react-toastify';
+import UploadProgress from '../../components/UploadProgress';
+import { Modal } from 'flowbite-react'; // Ensure this is the correct import
+import 'react-toastify/dist/ReactToastify.css';
 
 const UsersPage = () => {
+    const router = useRouter();
     const dispatch = useDispatch();
     const users = useSelector(selectUserList);
     const loading = useSelector(selectLoadingStatus);
-    const error = useSelector(selectErrorMessage);
-    const [openModal, setOpenModal] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState(null);
-    const [selectedUserName, setSelectedUserName] = useState('');
-    const [reload, setReload] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState([]);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
     const [openBulkDeleteModal, setOpenBulkDeleteModal] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
-        dispatch(fetchUserList())
-            .then((response) => {
-                console.log("Fetched users:", response.payload);
-            })
-            .catch((error) => console.error("Error fetching users:", error));
-    }, [dispatch, reload]);
+        dispatch(fetchUserList());
+    }, [dispatch]);
 
-    const handleDelete = async () => {
-        if (!selectedUserId) {
-            toast.error("User ID is missing!");
-            return;
-        }
-    
+    const handleDelete = async (userId) => {
         try {
-            await dispatch(deleteUser(selectedUserId));
-            dispatch(fetchUserList());
-            toast.success("User deleted successfully!");
-            setReload(prev => !prev);
-            setOpenModal(false);
-            setSelectedUserId(null);
-            setSelectedUserName('');
+            await dispatch(deleteUser(userId)).unwrap();
+            toast.success('User deleted successfully');
+            setOpenDeleteModal(false);
         } catch (error) {
-            console.error("Error deleting user:", error);
-            toast.error("Failed to delete user. Please try again.");
+            toast.error('Error deleting user: ' + error.message);
         }
     };
 
     const handleBulkDelete = async () => {
         try {
-            for (const userId of selectedUsers) {
-                await dispatch(deleteUser(userId));
-            }
-            dispatch(fetchUserList());
-            toast.success("Users deleted successfully!");
+            await dispatch(bulkDeleteUsers(selectedUsers)).unwrap();
+            toast.success('Selected users deleted successfully');
             setSelectedUsers([]);
             setOpenBulkDeleteModal(false);
-            setReload(prev => !prev);
         } catch (error) {
-            console.error("Error deleting users:", error);
-            toast.error("Failed to delete users. Please try again.");
+            toast.error('Error deleting users: ' + error.message);
         }
     };
 
-    const openDeleteModal = (userId, userName) => {
-        setSelectedUserId(userId);
-        setSelectedUserName(userName);
-        setOpenModal(true);
-    };
-
-    const toggleSelectUser = (userId) => {
-        setSelectedUsers(prevSelected =>
-            prevSelected.includes(userId)
-                ? prevSelected.filter(id => id !== userId)
-                : [...prevSelected, userId]
+    const handleCheckboxChange = (userId) => {
+        setSelectedUsers(prev => 
+            prev.includes(userId) 
+                ? prev.filter(id => id !== userId)
+                : [...prev, userId]
         );
     };
 
-    const renderCell = useCallback((user, columnKey) => {
-        const cellValue = user[columnKey];
-        switch (columnKey) {
-            case "name":
-                return (
-                    <div className='flex items-center gap-6 hover:scale-105 transition-all duration-250'>
-                        <input
-                            type="checkbox"
-                            checked={selectedUsers.includes(user._id)}
-                            onChange={() => toggleSelectUser(user._id)}
-                            className="mr-4"
-                        />
-                        {user.image ? (
-                            <img 
-                                src={user.image}
-                                alt={`${user.first_name}'s profile`}
-                                className='size-14 rounded-full object-cover'
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'fallback-avatar.png'; // You can add a fallback image
-                                }}
-                            />
-                        ) : (
-                            <div className='size-14 rounded-full bg-gray-200 flex items-center justify-center'>
-                                <span className='text-gray-500 text-xl'>
-                                    {user.first_name?.charAt(0)?.toUpperCase()}
-                                </span>
-                            </div>
-                        )}
-                        <div>
-                            <h1 className='text-xl font-bold tracking-wide'>{user.first_name}</h1>
-                            <h3 className='text-sm'>{user.email}</h3>
-                        </div>
-                    </div>
-                );
-            case "role":
-                return (
-                    <div className="flex flex-col hover:scale-105 transition-all duration-250">
-                        <p className="text-bold text-sm capitalize">{user.role}</p>
-                        <p className="text-bold text-sm capitalize text-default-400">{user.team}</p>
-                    </div>
-                );
-            case "status":
-                return (
-                    <Chip className="capitalize p-3 hover:scale-105 transition-all duration-250" 
-                          color={statusColorMap[user.status]} 
-                          size="sm" 
-                          variant="flat">
-                        {user.status}
-                    </Chip>
-                );
-            case "actions":
-                return (
-                    <div className="relative flex items-center gap-4">
-                        <Tooltip content="Details">
-                            <button
-                                onClick={() => router.push(`/details/${user._id}`)}
-                                className="text-lg text-default-400 cursor-pointer active:opacity-50 hover:scale-105 transition-all duration-250">
-                                <EyeIcon className="size-[30px]"/>
-                            </button>
-                        </Tooltip>
-                        <Tooltip content="Edit user">
-                            <Link href={`/edit/${user._id}`} 
-                                  className="text-lg text-default-400 cursor-pointer active:opacity-50 hover:scale-105 transition-all duration-250">
-                                <EditIcon className="size-[30px]" />
-                            </Link>
-                        </Tooltip>
-                        <Tooltip color="danger" content="Delete user" className='px-2'>
-                            <span onClick={() => openDeleteModal(user._id, user.first_name)}
-                                  className="text-lg text-danger cursor-pointer active:opacity-50 hover:scale-105 transition-all duration-250">
-                                <DeleteIcon className="size-[30px]"/>
-                            </span>
-                        </Tooltip>
-                    </div>
-                );
-            default:
-                return cellValue;
-        }
-    }, [router, selectedUsers]);
-
     return (
-        <div className="py-4 pt-5 main">
-            <div className="shadow-md rounded-lg border border-gray-300">
-                <div className="px-4 py-3 bg-gray-800 rounded-t-lg">
-                    <Link href="/add" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded shadow-md">
-                        Add New User [+]
-                    </Link>
-                    {selectedUsers.length > 0 && (
-                        <button
-                            onClick={() => setOpenBulkDeleteModal(true)}
-                            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded shadow-md text-white ml-4"
-                        >
-                            Delete Selected Users
-                        </button>
-                    )}
-                </div>
-                <div className="p-4" style={{ minHeight: '400px' }}>
-                    {loading ? (
-                        <div className='flex item-center justify-center mt-[100px]'>
-                            <BarLoader color="#4bf003" height={8} width={200} />
-                        </div>
-                    ) : error ? (
-                        <div className="text-center py-4 text-red-500">Error: {error}</div>
-                    ) : (
-                        <Table aria-label="User Table" className="overflow-x-auto transition-all duration-400">
-                            <TableHeader>
-                                {columns.map((column) => (
-                                    <TableColumn 
-                                        key={column.uid} 
-                                        align={column.uid === "actions" ? "center" : "start"}
-                                        className='text-left tracking-widest text-xl'>
-                                        {column.name}
-                                    </TableColumn>
-                                ))}
-                            </TableHeader>
-                            <TableBody>
-                                {users.map((user) => (
-                                    <TableRow key={user._id}>
-                                        {columns.map((column) => (
-                                            <TableCell key={column.uid}>
-                                                {renderCell(user, column.uid)}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </div>
+        <div className="container mt-[100px] mx-auto px-4 py-6 max-w-7xl">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 className="text-2xl font-bold">Users List</h1>
+                <button
+                    onClick={() => router.push('/add')}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg 
+                             flex items-center gap-2 transition-all duration-300 shadow-md w-full sm:w-auto"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add New User
+                </button>
             </div>
-            
-            <ToastContainer className="z-50 mt-[100px]" />
-            
-            {/* Bulk Delete Modal */}
+
+            {/* Bulk Delete Button */}
+            {selectedUsers.length > 0 && (
+                <div className="mb-4">
+                    <button
+                        onClick={() => setOpenBulkDeleteModal(true)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg 
+                                 flex items-center gap-2 transition-all duration-300 w-full sm:w-auto"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete Selected ({selectedUsers.length})
+                    </button>
+                </div>
+            )}
+
+            {/* Loading State */}
+            {loading ? (
+                <div className="flex justify-center items-center min-h-[400px]">
+                    <div className="w-full max-w-md">
+                        <UploadProgress isLoading={true} message="Loading users..." />
+                    </div>
+                </div>
+            ) : (
+                /* Users Grid */
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {users.map(user => (
+                        <div key={user._id} className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedUsers.includes(user._id)}
+                                        onChange={() => handleCheckboxChange(user._id)}
+                                        className="w-4 h-4"
+                                    />
+                                    {user.image ? (
+                                        <img
+                                            src={user.image}
+                                            alt={user.first_name}
+                                            className="w-12 h-12 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                            <span className="text-xl text-gray-500">
+                                                {user.first_name?.charAt(0)?.toUpperCase()}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => router.push(`/details/${user._id}`)}
+                                        className="text-blue-500 hover:text-blue-700"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => router.push(`/edit/${user._id}`)}
+                                        className="text-yellow-500 hover:text-yellow-700"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setUserToDelete(user);
+                                            setOpenDeleteModal(true);
+                                        }}
+                                        className="text-red-500 hover:text-red-700"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">{user.first_name || 'N/A'}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{user.email || 'N/A'}</p>
+                                <p className="text-sm">
+                                    <span className={`px-2 py-1 rounded-full text-xs ${
+                                        user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    }`}>
+                                        {user.status || 'N/A'}
+                                    </span>
+                                </p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{user.role || 'N/A'}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Delete Modal */}
             <Modal
-                className="w-1/2 mx-auto my-auto h-fit"
-                show={openBulkDeleteModal}
-                position="center"
-                onClose={() => setOpenBulkDeleteModal(false)}
+                isOpen={openDeleteModal}
+                onClose={() => setOpenDeleteModal(false)}
+                title="Delete User"
             >
-                <div className='bg-gray-600 rounded-xl border-4 border-yellow-500'>
-                    <Modal.Header className="text-white text-center">
-                        Confirm Bulk Delete
-                    </Modal.Header>
-                    <Modal.Body className="text-white text-center">
-                        Are you sure you want to delete the selected users?
-                    </Modal.Body>
-                    <Modal.Footer className="flex justify-center gap-8">
-                        <button onClick={handleBulkDelete} 
-                                className="bg-red-600 px-4 py-2 rounded text-white">
-                            Yes, Delete
-                        </button>
-                        <button onClick={() => setOpenBulkDeleteModal(false)} 
-                                className="bg-gray-300 px-4 py-2 rounded text-black">
+                <div className="p-6">
+                    <p>Are you sure you want to delete {userToDelete?.first_name}?</p>
+                    <div className="mt-4 flex justify-end gap-4">
+                        <button
+                            onClick={() => setOpenDeleteModal(false)}
+                            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                        >
                             Cancel
                         </button>
-                    </Modal.Footer>
-                </div>
-            </Modal>
-            
-            {/* Single Delete Modal */}
-            <Modal
-                show={openModal}
-                size="sm"
-                onClose={() => setOpenModal(false)}
-                className="w-1/2 mx-auto my-auto h-fit"
-            >
-                <div className='bg-gray-600 rounded-xl border-4 border-yellow-500'>
-                    <Modal.Header className='text-white'>
-                        Are you sure you want to delete this user?
-                    </Modal.Header>
-                    <Modal.Body className='text-white'>
-                        <h1 className='text-2xl tracking-wider'>{selectedUserName}</h1>
-                    </Modal.Body>
-                    <Modal.Footer className="flex justify-center gap-8">
                         <button
-                            onClick={handleDelete}
-                            className="text-white bg-red-500 hover:bg-red-700 rounded px-4 py-2"
+                            onClick={() => handleDelete(userToDelete?._id)}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                         >
                             Delete
                         </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Bulk Delete Modal */}
+            <Modal
+                isOpen={openBulkDeleteModal}
+                onClose={() => setOpenBulkDeleteModal(false)}
+                title="Delete Selected Users"
+            >
+                <div className="p-6">
+                    <p>Are you sure you want to delete {selectedUsers.length} users?</p>
+                    <div className="mt-4 flex justify-end gap-4">
                         <button
-                            onClick={() => setOpenModal(false)}
-                            className="bg-gray-300 text-black rounded px-4 py-2"
+                            onClick={() => setOpenBulkDeleteModal(false)}
+                            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
                         >
                             Cancel
                         </button>
-                    </Modal.Footer>
+                        <button
+                            onClick={handleBulkDelete}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        >
+                            Delete All
+                        </button>
+                    </div>
                 </div>
             </Modal>
+
+            <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );
 };

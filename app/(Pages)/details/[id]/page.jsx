@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserList, selectUserList, selectLoadingStatus } from '../../../Redux/userSlice';
+import { selectUserList, selectLoadingStatus } from '../../../Redux/userSlice';
+import { fetchUserList } from '../../../Redux/userThunks';
 import 'react-toastify/dist/ReactToastify.css';
 
 const UserDetails = () => {
@@ -38,7 +39,7 @@ const UserDetails = () => {
     }
 
     return (
-        <div className="flex justify-center flex-col items-center">
+        <div className="flex justify-center flex-col items-center ">
             <div className="mt-[100px] lg:w-1/2 lg scale-80 lg:scale-100">
                 <h1 className="text-[30px] font-bold tracking-wider underline-offset-8 underline">User Details</h1>
                 <div className="border p-4 shadow-md rounded-xl flex items-start gap-[30px] justify-between mt-[50px]">
@@ -57,7 +58,7 @@ const UserDetails = () => {
                         )}
                     </div>
                     {user.image && (
-                        <div className="p-3 border-2 border-white rounded-xl shadow-md">
+                        <div className="p-3 border-2 border-white rounded-xl shadow-md hover:scale-110 transition-all duration-300 hover:border-red-500">
                             <img
                                 src={user.image}  // Base64 image is already in correct format
                                 alt={`${user.first_name}'s profile`}
