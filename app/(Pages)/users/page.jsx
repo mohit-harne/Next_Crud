@@ -109,7 +109,7 @@ const UsersPage = () => {
                 /* Users Grid */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {users.map(user => (
-                        <div key={user._id} className="bg-white border-3 border-yellow-500 dark:bg-gray-800  dark:border-gray-700 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                        <div key={user._id} className="bg-white border-3 border-yellow-500 hover:scale-[98%] hover:border-red-700 transition-all duration-300 dark:bg-gray-800  dark:border-gray-700 rounded-lg shadow-md p-4 hover:shadow-lg">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <input
