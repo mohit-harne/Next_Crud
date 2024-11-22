@@ -39,11 +39,11 @@ const UserDetails = () => {
     }
 
     return (
-        <div className="flex justify-center flex-col items-center ">
-            <div className="mt-[100px] lg:w-1/2 lg scale-80 lg:scale-100">
+        <div className="flex justify-center flex-col items-center">
+            <div className="mt-[100px] w-full max-w-2xl px-4 lg:w-1/2">
                 <h1 className="text-[30px] font-bold tracking-wider underline-offset-8 underline">User Details</h1>
-                <div className="border p-4 shadow-md rounded-xl flex items-start gap-[30px] justify-between mt-[50px]">
-                    <div className="flex flex-col gap-[20px] text-lg">
+                <div className="border p-4 shadow-md rounded-xl flex flex-col lg:flex-row items-start gap-4 justify-between mt-[50px]">
+                    <div className="flex flex-col gap-4 text-lg w-full">
                         <p><strong>Name:</strong> {user.first_name || 'N/A'}</p>
                         <p><strong>Email:</strong> {user.email || 'N/A'}</p>
                         <p><strong>Role:</strong> {user.role || 'N/A'}</p>

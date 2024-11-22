@@ -91,6 +91,17 @@ const UpdateUser = () => {
             dispatch(setUploadProgress(0)); // Reset progress
 
             const reader = new FileReader();
+
+            // Update progress on file read
+            reader.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    console.log(`Upload Progress: ${progress}%`); // Log progress
+                    dispatch(setUploadProgress(progress)); // Dispatch progress
+                }
+            };
+
+            // When the file is read successfully
             reader.onloadend = () => {
                 const base64String = reader.result;
                 setFormData(prev => ({
@@ -101,18 +112,13 @@ const UpdateUser = () => {
                 dispatch(setUploadProgress(100)); // Complete progress
             };
 
-            reader.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const progress = Math.round((event.loaded / event.total) * 100);
-                    dispatch(setUploadProgress(progress));
-                }
-            };
-
+            // Handle errors
             reader.onerror = () => {
                 toast.error('Error reading file');
                 dispatch(setUploadProgress(0));
             };
 
+            // Start reading the file as a data URL
             reader.readAsDataURL(file);
         }
     };

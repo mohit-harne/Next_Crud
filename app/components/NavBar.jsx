@@ -1,5 +1,3 @@
-// components/Navbar.jsx
-
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
@@ -10,7 +8,7 @@ export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleMenuClick = () => {
-    setIsOpen(false);
+    setIsOpen(false); // Close the menu
   };
 
   return (
@@ -60,13 +58,12 @@ export default function NavBar() {
               </Link>
             </li>
             <li>
-              <Link href="/users" className="block py-2 px-4 text-black rounded hover:bg-gray-100" >
+              <Link href="/users" className="block py-2 px-4 text-black rounded hover:bg-gray-100" onClick={handleMenuClick}>
                 Users
               </Link>
             </li>
-           
             <li>
-              <ModeToggle/>
+              <ModeToggle />
             </li>
           </ul>
         </div>

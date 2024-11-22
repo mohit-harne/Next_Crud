@@ -67,7 +67,7 @@ const AddUser = () => {
             reader.onprogress = (event) => {
                 if (event.lengthComputable) {
                     const progress = Math.round((event.loaded / event.total) * 100);
-                    dispatch(setUploadProgress(progress));
+                    dispatch(setUploadProgress(progress)); // Dispatch progress
                 }
             };
 
@@ -100,16 +100,21 @@ const AddUser = () => {
             toast.success('User added successfully!');
             router.push('/users');
         } catch (error) {
-            toast.error('Error adding user: ' + (error.message || 'Unknown error occurred'));
+            // Check for duplicate email error
+            if (error.message.includes('duplicate key error')) {
+                toast.warn('A user with this email already exists. Please use a different email.');
+            } else {
+                toast.error('Error adding user: ' + (error.message || 'Unknown error occurred'));
+            }
         }
     };
 
     return (
         <div className='flex justify-center flex-col items-center'>
-            <div className='mt-[100px] w-1/2'>
+            <div className='mt-[100px] w-full max-w-2xl px-4'>
                 <h1 className="text-3xl font-bold mb-6">Add New User</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Basic Information */}
                         <div>
                             <label htmlFor="first_name" className="block mb-1">Name:</label>

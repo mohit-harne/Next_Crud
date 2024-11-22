@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserList, deleteUser, bulkDeleteUsers } from '../../Redux/userThunks';
+import { fetchUserList, deleteUser } from '../../Redux/userThunks';
+import { bulkDeleteUsers } from '../../Redux/userThunks';
 import { selectUserList, selectLoadingStatus } from '../../Redux/userSlice';
 import { useRouter } from 'next/navigation';
 import { toast, ToastContainer } from 'react-toastify';
@@ -23,11 +24,15 @@ const UsersPage = () => {
         dispatch(fetchUserList());
     }, [dispatch]);
 
+    useEffect(() => {
+        console.log('Users from Redux state:', users);
+    }, [users]);
+
     const handleDelete = async (userId) => {
         try {
             await dispatch(deleteUser(userId)).unwrap();
             toast.success('User deleted successfully');
-            setOpenDeleteModal(false);
+            setOpenDeleteModal(false); // Close the modal after successful delete
         } catch (error) {
             toast.error('Error deleting user: ' + error.message);
         }
@@ -35,25 +40,33 @@ const UsersPage = () => {
 
     const handleBulkDelete = async () => {
         try {
-            await dispatch(bulkDeleteUsers(selectedUsers)).unwrap();
+            // Dispatch the bulkDeleteUsers action and unwrap the result
+            await dispatch(bulkDeleteUsers(users)).unwrap();
+            
+            // Show a success toast notification
             toast.success('Selected users deleted successfully');
+            
+            // Clear the selected users and close the modal
             setSelectedUsers([]);
-            setOpenBulkDeleteModal(false);
+            setOpenBulkDeleteModal(false); // Close bulk delete modal after successful delete
         } catch (error) {
-            toast.error('Error deleting users: ' + error.message);
+            // Error handling: check for a custom error message or fallback to a generic one
+            const errorMessage = error?.message || 'Error deleting users';
+            toast.error(errorMessage);
         }
     };
+    
 
     const handleCheckboxChange = (userId) => {
-        setSelectedUsers(prev => 
-            prev.includes(userId) 
+        setSelectedUsers(prev =>
+            prev.includes(userId)
                 ? prev.filter(id => id !== userId)
                 : [...prev, userId]
         );
     };
 
     return (
-        <div className="container mt-[100px] mx-auto px-4 py-6 max-w-7xl">
+        <div className="container mt-[100px] mx-auto px-4 py-6 max-w-7xl ">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h1 className="text-2xl font-bold">Users List</h1>
@@ -96,7 +109,7 @@ const UsersPage = () => {
                 /* Users Grid */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {users.map(user => (
-                        <div key={user._id} className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                        <div key={user._id} className="bg-white border-3 border-yellow-500 dark:bg-gray-800  dark:border-gray-700 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <input
@@ -113,7 +126,7 @@ const UsersPage = () => {
                                         />
                                     ) : (
                                         <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <span className="text-xl text-gray-500">
+                                            <span className="text-xl text-black dark:text-black">
                                                 {user.first_name?.charAt(0)?.toUpperCase()}
                                             </span>
                                         </div>
@@ -138,9 +151,9 @@ const UsersPage = () => {
                                         </svg>
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            setUserToDelete(user);
-                                            setOpenDeleteModal(true);
+                                         onClick={() => {
+                                            setUserToDelete(user); // Set the user to delete
+                                            setOpenDeleteModal(true); // Open the modal
                                         }}
                                         className="text-red-500 hover:text-red-700"
                                     >
@@ -150,74 +163,59 @@ const UsersPage = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">{user.first_name || 'N/A'}</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{user.email || 'N/A'}</p>
-                                <p className="text-sm">
-                                    <span className={`px-2 py-1 rounded-full text-xs ${
-                                        user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                    }`}>
-                                        {user.status || 'N/A'}
-                                    </span>
-                                </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{user.role || 'N/A'}</p>
-                            </div>
+                            <p className="font-semibold text-black">{user.first_name} {user.last_name}</p>
+                            <p className="text-sm text-gray-500">{user.email}</p>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Delete Modal */}
-            <Modal
-                isOpen={openDeleteModal}
-                onClose={() => setOpenDeleteModal(false)}
-                title="Delete User"
-            >
-                <div className="p-6">
-                    <p>Are you sure you want to delete {userToDelete?.first_name}?</p>
-                    <div className="mt-4 flex justify-end gap-4">
-                        <button
-                            onClick={() => setOpenDeleteModal(false)}
-                            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={() => handleDelete(userToDelete?._id)}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                        >
-                            Delete
-                        </button>
-                    </div>
-                </div>
+            {/* Toast Notification */}
+            <ToastContainer />
+
+            {/* Delete User Modal */}
+            <Modal show={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+                <Modal.Header>Confirm Deletion</Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete {userToDelete?.first_name} {userToDelete?.last_name}?</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button
+                        onClick={() => setOpenDeleteModal(false)}
+                        className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={() => handleDelete(userToDelete?._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                    >
+                        Delete
+                    </button>
+                </Modal.Footer>
             </Modal>
 
             {/* Bulk Delete Modal */}
-            <Modal
-                isOpen={openBulkDeleteModal}
-                onClose={() => setOpenBulkDeleteModal(false)}
-                title="Delete Selected Users"
-            >
-                <div className="p-6">
-                    <p>Are you sure you want to delete {selectedUsers.length} users?</p>
-                    <div className="mt-4 flex justify-end gap-4">
-                        <button
-                            onClick={() => setOpenBulkDeleteModal(false)}
-                            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleBulkDelete}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                        >
-                            Delete All
-                        </button>
-                    </div>
-                </div>
+            <Modal show={openBulkDeleteModal} onClose={() => setOpenBulkDeleteModal(false)}>
+                <Modal.Header>Confirm Bulk Deletion</Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete the selected users?</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button
+                        onClick={() => setOpenBulkDeleteModal(false)}
+                        className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleBulkDelete}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                    >
+                        Delete Selected
+                    </button>
+                </Modal.Footer>
             </Modal>
-
-            <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );
 };
