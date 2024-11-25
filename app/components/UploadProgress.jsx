@@ -1,60 +1,82 @@
-import { useState, useEffect } from 'react';
+'use client';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUserList, selectLoadingStatus } from '../Redux/userSlice';
+import { fetchUserList } from '../Redux/userThunks';
+import ClipLoader from 'react-spinners/ClipLoader'; // Import spinner
+import 'react-toastify/dist/ReactToastify.css';
 
-const UploadProgress = () => {
-    const [progress, setProgress] = useState(0);
+const UserDetails = () => {
+    const params = useParams();
+    const { id } = params;
+    const userId = decodeURIComponent(id);
+    const dispatch = useDispatch();
+    const users = useSelector(selectUserList);
+    const loading = useSelector(selectLoadingStatus);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const totalDuration = 4000; // 4 seconds in milliseconds
-        const increment = 100; // Total percentage (0 to 100)
-        const interval = totalDuration / increment; // Time for each step (4000ms / 100)
+        if (users.length === 0) {
+            dispatch(fetchUserList());
+        }
+    }, [dispatch, users]);
 
-        const timer = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) {
-                    clearInterval(timer); // Stop the timer when reaching 100
-                    return 100;
-                }
-                return prev + 1; // Increment progress by 1 each step
-            });
-        }, interval);
+    useEffect(() => {
+        if (userId && users.length > 0) {
+            const foundUser = users.find((user) => user._id === userId);
+            if (foundUser) {
+                setUser(foundUser);
+            }
+        }
+    }, [userId, users]);
 
-        return () => clearInterval(timer); // Cleanup the interval on unmount
-    }, []);
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <ClipLoader color="#3498db" size={100} />
+            </div>
+        );
+    }
 
-    const normalizedProgress = Math.min(Math.max(progress, 0), 100);
-
-    const getProgressColor = (progress) => {
-        if (progress < 30) return 'bg-red-500';
-        if (progress < 70) return 'bg-yellow-500';
-        return 'bg-green-500';
-    };
+    if (!user) {
+        return <p className="mt-[130px] text-center text-red-500">No user found with the provided ID.</p>;
+    }
 
     return (
-        <div className="w-full p-4 bg-gray-100 rounded-lg shadow-sm">
-            <div className="mb-2 flex justify-between items-center">
-                <span className="text-sm font-semibold text-gray-700">Loading...</span>
-                <span className="text-sm font-bold text-gray-700">{normalizedProgress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
-                <div
-                    className={`h-full rounded-full transition-all duration-300 ${getProgressColor(normalizedProgress)}`}
-                    style={{ width: `${normalizedProgress}%` }}
-                />
-            </div>
-            <div className="flex justify-between text-xs text-gray-600">
-                <span>0%</span>
-                <span>25%</span>
-                <span>50%</span>
-                <span>75%</span>
-                <span>100%</span>
-            </div>
-            <div className="mt-2 text-[20px] text-center">
-                {normalizedProgress === 0 && <span className="text-gray-500">Loading</span>}
-                {normalizedProgress > 0 && normalizedProgress < 100 && <span className="text-blue-500"></span>}
-                {normalizedProgress === 100 && <span className="text-green-500">Loading complete!</span>}
+        <div className="flex justify-center flex-col items-center bg-gradient-to-b from-[--background] to-gray-950 dark:from-gray-600 dark:to-[--background] min-h-screen py-10 px-4">
+            <div className="w-full max-w-3xl bg-white dark:bg-[--card] shadow-xl rounded-xl p-6 lg:p-10">
+                <h1 className="text-3xl font-extrabold text-gray-800 dark:text-[--foreground] text-center tracking-widest mb-6">
+                    User Details
+                </h1>
+                <div className="flex flex-col lg:flex-row items-center gap-6">
+                    {user.image && (
+                        <div className="w-36 h-36 rounded-full overflow-hidden shadow-lg border-4 border-gray-300 dark:border-[--border] transform hover:scale-105 transition duration-300">
+                            <img
+                                src={user.image}
+                                alt={`${user.first_name}'s profile`}
+                                className="object-cover w-full h-full"
+                            />
+                        </div>
+                    )}
+                    <div className="text-gray-700 dark:text-[--foreground] flex-1 space-y-4 text-lg">
+                        <p><strong>Name:</strong> {user.first_name || 'N/A'}</p>
+                        <p><strong>Email:</strong> {user.email || 'N/A'}</p>
+                        <p><strong>Role:</strong> {user.role || 'N/A'}</p>
+                        <p><strong>Status:</strong> {user.status || 'N/A'}</p>
+                        <p><strong>Phone:</strong> {user.phone || 'N/A'}</p>
+                        {user.dob && <p><strong>Date of Birth:</strong> {new Date(user.dob).toLocaleDateString()}</p>}
+                        {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                        {user.gender && <p><strong>Gender:</strong> {user.gender}</p>}
+                        {user.blood_group && <p><strong>Blood Group:</strong> {user.blood_group}</p>}
+                        {user.languages_known && Array.isArray(user.languages_known) && (
+                            <p><strong>Languages Known:</strong> {user.languages_known.join(', ')}</p>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
 
-export default UploadProgress;
+export default UserDetails;

@@ -39,11 +39,20 @@ const UserDetails = () => {
     }
 
     return (
-        <div className="flex justify-center flex-col items-center">
-            <div className="mt-[100px] w-full max-w-2xl px-4 lg:w-1/2">
-                <h1 className="text-[30px] font-bold tracking-wider underline-offset-8 underline">User Details</h1>
-                <div className="border p-4 shadow-md rounded-xl flex flex-col lg:flex-row items-start gap-4 justify-between mt-[50px]">
-                    <div className="flex flex-col gap-4 text-lg w-full">
+        <div className="container flex justify-center flex-col items-center bg-gradient-to-b from-gray-600 to-gray-950 min-h-screen py-10 px-4 lg:mt-0 mt-[50px]">
+            <div className="w-full max-w-3xl bg-white shadow-xl rounded-xl p-6 lg:p-10">
+                <h1 className="text-3xl font-extrabold text-gray-800 text-center tracking-widest mb-6">User Details</h1>
+                <div className="flex flex-col lg:flex-row items-center gap-6">
+                    {user.image && (
+                        <div className="w-36 h-36 rounded-full overflow-hidden shadow-lg border-4 border-gray-300 transform hover:scale-105 transition duration-300">
+                            <img
+                                src={user.image}
+                                alt={`${user.first_name}'s profile`}
+                                className="object-cover w-full h-full"
+                            />
+                        </div>
+                    )}
+                    <div className="text-gray-700 flex-1 space-y-4 text-lg">
                         <p><strong>Name:</strong> {user.first_name || 'N/A'}</p>
                         <p><strong>Email:</strong> {user.email || 'N/A'}</p>
                         <p><strong>Role:</strong> {user.role || 'N/A'}</p>
@@ -57,15 +66,6 @@ const UserDetails = () => {
                             <p><strong>Languages Known:</strong> {user.languages_known.join(', ')}</p>
                         )}
                     </div>
-                    {user.image && (
-                        <div className="p-3 border-2 border-white rounded-xl shadow-md hover:scale-110 transition-all duration-300 hover:border-red-500">
-                            <img
-                                src={user.image}  // Base64 image is already in correct format
-                                alt={`${user.first_name}'s profile`}
-                                className="mt-2 w-32 h-32 rounded-full object-cover"
-                            />
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
